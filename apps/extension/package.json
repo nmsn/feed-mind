@@ -1,0 +1,25 @@
+{
+  "name": "@feed-mind/extension",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt dev",
+    "build": "wxt build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@feed-mind/shared": "workspace:*",
+    "@feed-mind/ui": "workspace:*",
+    "@feed-mind/tailwindcss": "workspace:*",
+    "react": "^18.3.0",
+    "wxt": "^0.10.0"
+  },
+  "devDependencies": {
+    "@feed-mind/tsconfig": "workspace:*",
+    "@feed-mind/eslint-config": "workspace:*",
+    "@types/react": "^18.3.0",
+    "typescript": "^5.6.0"
+  }
+}

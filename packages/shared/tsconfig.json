@@ -1,0 +1,11 @@
+{
+  "extends": ["@feed-mind/tsconfig/node"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

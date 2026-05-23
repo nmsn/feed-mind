@@ -1,0 +1,9 @@
+{
+  "name": "@feed-mind/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "files": [],
+  "dependencies": {
+    "typescript": "^5.6.0"
+  }
+}

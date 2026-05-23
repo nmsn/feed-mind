@@ -1,0 +1,24 @@
+{
+  "name": "feed-mind",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.x.x",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "db:generate": "pnpm --filter @feed-mind/db generate",
+    "db:migrate": "pnpm --filter @feed-mind/db migrate",
+    "db:studio": "pnpm --filter @feed-mind/db studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

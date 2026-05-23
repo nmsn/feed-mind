@@ -1,0 +1,26 @@
+{
+  "name": "@feed-mind/desktop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@feed-mind/shared": "workspace:*",
+    "@feed-mind/ui": "workspace:*",
+    "@feed-mind/tailwindcss": "workspace:*",
+    "electron-vite": "^2.3.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@feed-mind/tsconfig": "workspace:*",
+    "@feed-mind/eslint-config": "workspace:*",
+    "@types/react": "^18.3.0",
+    "typescript": "^5.6.0"
+  }
+}

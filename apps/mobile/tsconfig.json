@@ -1,0 +1,14 @@
+{
+  "extends": ["@feed-mind/tsconfig/react"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"],
+      "@feed-mind/shared/*": ["../../packages/shared/src/*"],
+      "@feed-mind/ui/*": ["../../packages/ui/src/*"],
+      "@feed-mind/tailwindcss/*": ["../../packages/tailwindcss/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

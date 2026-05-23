@@ -1,0 +1,31 @@
+{
+  "name": "@feed-mind/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./button": "./button",
+    "./input": "./input",
+    "./card": "./card",
+    "./sheet": "./sheet"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.1.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.0"
+  },
+  "devDependencies": {
+    "@feed-mind/tailwindcss": "workspace:*",
+    "@feed-mind/tsconfig": "workspace:*",
+    "react": "^18.3.0",
+    "typescript": "^5.6.0"
+  }
+}
