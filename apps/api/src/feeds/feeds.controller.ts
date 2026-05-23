@@ -38,4 +38,10 @@ export class FeedsController {
     const userId = (req as { user: { id: string } }).user?.id;
     return this.feeds.delete(id, userId);
   }
+
+  @Post(':id/refresh')
+  async refresh(@Param('id') id: string, @Req() req: Request) {
+    const userId = (req as { user: { id: string } }).user?.id;
+    return this.feeds.enqueueRefresh(id, userId);
+  }
 }

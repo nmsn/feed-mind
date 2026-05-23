@@ -30,4 +30,12 @@ export class FeedsService {
     await this.findOne(id, userId);
     return this.feeds.delete(id);
   }
+
+  async enqueueRefresh(id: string, userId: string) {
+    await this.findOne(id, userId); // validates ownership
+    // Import boss dynamically to avoid circular dependencies
+    const { boss } = await import('../worker/feed-scheduler');
+    await boss.send('feed.fetch', { feedId: id });
+    return { success: true };
+  }
 }
