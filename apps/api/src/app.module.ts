@@ -7,6 +7,7 @@ import { ArticlesModule } from './articles/articles.module';
 import { RssModule } from './rss/rss.module';
 import { ReadingModule } from './reading/reading.module';
 import { AnnotationsModule } from './annotations/annotations.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AnnotationsModule } from './annotations/annotations.module';
     RssModule,
     ReadingModule,
     AnnotationsModule,
+    AiModule,
   ],
 })
 export class AppModule {}
