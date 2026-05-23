@@ -1,6 +1,6 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { pgTable, text, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
 
-export const users = sqliteTable('users', {
+export const users = pgTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
@@ -10,14 +10,14 @@ export const users = sqliteTable('users', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
 
-export const sessions = sqliteTable('sessions', {
+export const sessions = pgTable('sessions', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull().references(() => users.id),
   expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 });
 
-export const rssSources = sqliteTable('rss_sources', {
+export const rssSources = pgTable('rss_sources', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull().references(() => users.id),
   name: text('name').notNull(),
@@ -31,7 +31,7 @@ export const rssSources = sqliteTable('rss_sources', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
 
-export const articles = sqliteTable('articles', {
+export const articles = pgTable('articles', {
   id: text('id').primaryKey(),
   sourceId: text('source_id').notNull().references(() => rssSources.id),
   title: text('title').notNull(),
@@ -45,7 +45,7 @@ export const articles = sqliteTable('articles', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
 
-export const readingItems = sqliteTable('reading_items', {
+export const readingItems = pgTable('reading_items', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull().references(() => users.id),
   articleId: text('article_id').notNull().references(() => articles.id),
@@ -56,7 +56,7 @@ export const readingItems = sqliteTable('reading_items', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
 
-export const aiAnnotations = sqliteTable('ai_annotations', {
+export const aiAnnotations = pgTable('ai_annotations', {
   id: text('id').primaryKey(),
   readingItemId: text('reading_item_id').notNull().references(() => readingItems.id),
   type: text('type', { enum: ['summary', 'highlight', 'question', 'answer'] }).notNull(),
