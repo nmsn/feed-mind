@@ -28,10 +28,20 @@
 | Browser Extension | WXT |
 | Desktop | Electron-vite |
 | Backend | NestJS |
-| Database | SQLite + Turso + Drizzle ORM |
+| Database | PostgreSQL 16 + Drizzle ORM |
 | Authentication | Better Auth |
 | AI | Claude API (primary), OpenAI (future) |
+| Task Queue | pg-boss (PostgreSQL-based) |
 | Deployment | Self-hosted (Docker) |
+
+### Component Reuse Strategy
+
+**From FeedFuse (reference project) learned patterns:**
+
+1. **RSS Parsing** — `rss-parser` + custom fetch with SSRF protection (validate URLs)
+2. **Fulltext Extraction** — `@mozilla/readability` + `jsdom`
+3. **Task Queue** — pg-boss (PostgreSQL-based), same as FeedFuse. Background job processing for RSS fetching, AI tasks, feed refresh
+4. **AI Tasks Config Fingerprint** — Capture config at queue time, validate before write
 
 ### Monorepo Structure
 
