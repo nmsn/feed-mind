@@ -25,7 +25,7 @@ export const rssSources = pgTable('rss_sources', {
   description: text('description'),
   iconUrl: text('icon_url'),
   category: text('category'),
-  isActive: integer('is_active', { mode: 'boolean' }).default(true),
+  isActive: text('is_active').default('true'),
   lastFetchedAt: integer('last_fetched_at', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),

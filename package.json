@@ -2,7 +2,7 @@
   "name": "feed-mind",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@9.x.x",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",

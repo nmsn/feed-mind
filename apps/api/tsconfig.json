@@ -6,7 +6,9 @@
       "~/*": ["./src/*"],
       "@feed-mind/shared/*": ["../../packages/shared/src/*"],
       "@feed-mind/db/*": ["../../packages/db/src/*"]
-    }
+    },
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
