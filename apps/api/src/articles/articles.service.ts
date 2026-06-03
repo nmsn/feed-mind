@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ArticlesRepository } from './articles.repository';
 import { RssService } from '../rss/rss.service';
+import { createPaginatedResponse, type Cursor } from '@feed-mind/shared';
 
 @Injectable()
 export class ArticlesService {
@@ -11,6 +12,31 @@ export class ArticlesService {
 
   async findBySourceId(sourceId: string, limit = 20, offset = 0) {
     return this.articles.findBySourceId(sourceId, limit, offset);
+  }
+
+  /**
+   * Get articles with cursor-based pagination
+   */
+  async findWithCursor(
+    sourceId: string | undefined,
+    cursor: Cursor | undefined,
+    limit: number
+  ) {
+    const rows = await this.articles.findWithCursor(sourceId, cursor, limit);
+
+    // Check if there are more results
+    const hasMore = rows.length > limit;
+    const items = hasMore ? rows.slice(0, -1) : rows;
+
+    // Get next cursor from last item
+    const nextCursor: Cursor | undefined = hasMore && items.length > 0
+      ? {
+          id: items[items.length - 1].id as string,
+          publishedAt: items[items.length - 1].published_at as string,
+        }
+      : undefined;
+
+    return createPaginatedResponse(items, hasMore, nextCursor);
   }
 
   async findOne(id: string) {

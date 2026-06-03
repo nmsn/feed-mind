@@ -1,9 +1,54 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
+import type { Cursor } from '@feed-mind/shared';
 
 @Injectable()
 export class ArticlesRepository {
   constructor(private db: DatabaseService) {}
+
+  /**
+   * Find articles with cursor-based pagination
+   * Uses compound cursor (id, publishedAt) for stable ordering
+   */
+  async findWithCursor(
+    sourceId: string | undefined,
+    cursor: Cursor | undefined,
+    limit: number
+  ) {
+    if (!sourceId) {
+      // No source filter - use global article list
+      if (!cursor) {
+        return this.db.query(
+          'SELECT * FROM articles ORDER BY published_at DESC, id DESC LIMIT $1',
+          [limit + 1] // Fetch one extra to check if there are more
+        );
+      }
+      return this.db.query(
+        `SELECT * FROM articles
+         WHERE (published_at < $1 OR (published_at = $1 AND id < $2))
+         ORDER BY published_at DESC, id DESC
+         LIMIT $3`,
+        [new Date(cursor.publishedAt), cursor.id, limit + 1]
+      );
+    }
+
+    // With source filter
+    if (!cursor) {
+      return this.db.query(
+        'SELECT * FROM articles WHERE source_id = $1 ORDER BY published_at DESC, id DESC LIMIT $2',
+        [sourceId, limit + 1]
+      );
+    }
+
+    return this.db.query(
+      `SELECT * FROM articles
+       WHERE source_id = $1
+         AND (published_at < $2 OR (published_at = $2 AND id < $3))
+       ORDER BY published_at DESC, id DESC
+       LIMIT $4`,
+      [sourceId, new Date(cursor.publishedAt), cursor.id, limit + 1]
+    );
+  }
 
   async findBySourceId(sourceId: string, limit = 20, offset = 0) {
     return this.db.query(
