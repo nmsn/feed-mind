@@ -1,15 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
 
 @Injectable()
 export class DatabaseService {
   private pool: Pool;
+  private initialized = false;
 
-  constructor(private configService: ConfigService) {
-    this.pool = new Pool({
-      connectionString: this.configService.get('DATABASE_URL'),
-    });
+  constructor(@Inject(ConfigService) private configService: ConfigService) {
+    this.initialize();
+  }
+
+  private initialize() {
+    if (this.initialized) return;
+    const databaseUrl = this.configService.get('DATABASE_URL');
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+    this.pool = new Pool({ connectionString: databaseUrl });
+    this.initialized = true;
   }
 
   getPool(): Pool {
