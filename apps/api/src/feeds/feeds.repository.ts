@@ -16,6 +16,13 @@ export class FeedsRepository {
     return this.db.queryOne('SELECT * FROM rss_sources WHERE id = $1', [id]);
   }
 
+  async findByUrl(userId: string, url: string) {
+    return this.db.queryOne(
+      'SELECT * FROM rss_sources WHERE user_id = $1 AND url = $2',
+      [userId, url]
+    );
+  }
+
   async create(userId: string, input: { name: string; url: string; description?: string; category?: string }) {
     const id = crypto.randomUUID();
     const now = new Date();

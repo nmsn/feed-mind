@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { FeedsRepository } from './feeds.repository';
 import { CreateFeedInput, UpdateFeedInput } from './dto/create-feed.dto';
+import { parseOPML, generateOPML, extractFeedUrls, type OPML } from '@feed-mind/shared';
 
 @Injectable()
 export class FeedsService {
@@ -37,5 +38,93 @@ export class FeedsService {
     const { boss } = await import('../worker/feed-scheduler');
     await boss.send('feed.fetch', { feedId: id });
     return { success: true };
+  }
+
+  /**
+   * Export all feeds to OPML format
+   */
+  async exportToOPML(userId: string): Promise<string> {
+    const feeds = await this.feeds.findByUserId(userId);
+
+    const opml: OPML = {
+      version: '2.0',
+      head: {
+        title: 'FeedMind Subscriptions',
+        dateCreated: new Date().toUTCString(),
+      },
+      body: feeds.map((feed: Record<string, unknown>) => ({
+        text: feed.name as string || '',
+        title: feed.name as string,
+        type: 'rss',
+        xmlUrl: feed.url as string,
+        htmlUrl: feed.description as string || undefined,
+        category: feed.category as string || undefined,
+      })),
+    };
+
+    return generateOPML(opml);
+  }
+
+  /**
+   * Import feeds from OPML format
+   * Returns the number of feeds imported and any errors
+   */
+  async importFromOPML(userId: string, opmlXml: string): Promise<{
+    imported: number;
+    failed: number;
+    errors: Array<{ url: string; error: string }>;
+    feeds: Array<{ name: string; url: string; id: string }>;
+  }> {
+    let opml: OPML;
+    try {
+      opml = parseOPML(opmlXml);
+    } catch {
+      throw new BadRequestException('Invalid OPML format');
+    }
+
+    const feedUrls = extractFeedUrls(opml);
+    const results = {
+      imported: 0,
+      failed: 0,
+      errors: [] as Array<{ url: string; error: string }>,
+      feeds: [] as Array<{ name: string; url: string; id: string }>,
+    };
+
+    for (const feedInfo of feedUrls) {
+      try {
+        // Check if feed already exists for this user
+        const existing = await this.feeds.findByUrl(userId, feedInfo.url);
+        if (existing) {
+          results.feeds.push({
+            name: existing.name as string,
+            url: existing.url as string,
+            id: existing.id as string,
+          });
+          results.imported++;
+          continue;
+        }
+
+        // Create new feed
+        const feed = await this.feeds.create(userId, {
+          name: feedInfo.text || feedInfo.url,
+          url: feedInfo.url,
+          category: feedInfo.category,
+        });
+        results.feeds.push({
+          name: feed.name as string,
+          url: feed.url as string,
+          id: feed.id as string,
+        });
+        results.imported++;
+      } catch (error) {
+        results.failed++;
+        results.errors.push({
+          url: feedInfo.url,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
+
+    return results;
   }
 }

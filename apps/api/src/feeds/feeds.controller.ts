@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Req, Res, Header } from '@nestjs/common';
 import { FeedsService } from './feeds.service';
 import { CreateFeedSchema, UpdateFeedSchema } from './dto/create-feed.dto';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 
 @Controller('feeds')
 export class FeedsController {
@@ -43,5 +43,20 @@ export class FeedsController {
   async refresh(@Param('id') id: string, @Req() req: Request) {
     const userId = (req as { user: { id: string } }).user?.id;
     return this.feeds.enqueueRefresh(id, userId);
+  }
+
+  @Get('export/opml')
+  @Header('Content-Type', 'text/xml; charset=utf-8')
+  @Header('Content-Disposition', 'attachment; filename="feedmind-subscriptions.opml"')
+  async exportOPML(@Req() req: Request, @Res() res: Response) {
+    const userId = (req as { user: { id: string } }).user?.id;
+    const opmlXml = await this.feeds.exportToOPML(userId);
+    return res.send(opmlXml);
+  }
+
+  @Post('import/opml')
+  async importOPML(@Body() body: { opml: string }, @Req() req: Request) {
+    const userId = (req as { user: { id: string } }).user?.id;
+    return this.feeds.importFromOPML(userId, body.opml);
   }
 }
