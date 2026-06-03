@@ -2,7 +2,6 @@
   "extends": "./base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["@feed-mind/tsconfig"]
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   }
 }
