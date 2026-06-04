@@ -4,10 +4,13 @@
   "private": true,
   "type": "module",
   "exports": {
+    ".": "./src/index.ts",
     "./button": "./button",
     "./input": "./input",
     "./card": "./card",
-    "./sheet": "./sheet"
+    "./sheet": "./sheet",
+    "./three-column-layout": "./three-column-layout",
+    "./utils": "./utils"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
@@ -17,6 +20,7 @@
     "react-dom": "^18.3.0"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
