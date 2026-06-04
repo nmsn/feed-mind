@@ -1,33 +1,27 @@
 import { useSearch, useNavigate, useLocation } from '@tanstack/react-router';
 import { useCallback, useMemo } from 'react';
 
-export type ViewMode = 'list' | 'grid' | 'reader';
-export type SortBy = 'publishedAt' | 'title' | 'source';
+export type ViewMode = 'all' | 'unread' | 'starred';
+export type SortBy = 'newest' | 'oldest';
 
 export interface UrlState {
   view: ViewMode;
-  unreadOnly: boolean;
-  sortBy: SortBy;
+  filter: boolean;
+  sort: SortBy;
   feedId?: string;
   category?: string;
   articleId?: string;
 }
 
 const DEFAULT_STATE: UrlState = {
-  view: 'list',
-  unreadOnly: false,
-  sortBy: 'publishedAt',
+  view: 'all',
+  filter: false,
+  sort: 'newest',
 };
 
 /**
  * Hook for syncing UI state with URL search params.
  * Supports: view mode, unread filter, sort order, selected feed/category/article
- *
- * @example
- * // In a component:
- * const { view, setView, unreadOnly, toggleUnread } = useUrlState();
- *
- * // URL becomes: ?view=grid&unread=true&sortBy=title
  */
 export function useUrlState() {
   const search = useSearch({ from: '/_index' });
@@ -36,8 +30,8 @@ export function useUrlState() {
 
   const state = useMemo<UrlState>(() => ({
     view: (search.view as ViewMode) || DEFAULT_STATE.view,
-    unreadOnly: search.unread === 'true',
-    sortBy: (search.sort as SortBy) || DEFAULT_STATE.sortBy,
+    filter: search.filter === 'true',
+    sort: (search.sort as SortBy) || DEFAULT_STATE.sort,
     feedId: search.feedId as string | undefined,
     category: search.category as string | undefined,
     articleId: search.articleId as string | undefined,
@@ -45,7 +39,6 @@ export function useUrlState() {
 
   const setState = useCallback((updates: Partial<UrlState>) => {
     const newState = { ...state, ...updates };
-    // Remove undefined values
     const cleanState = Object.fromEntries(
       Object.entries(newState).filter(([, v]) => v !== undefined)
     );
@@ -60,12 +53,12 @@ export function useUrlState() {
     setState({ view });
   }, [setState]);
 
-  const toggleUnread = useCallback(() => {
-    setState({ unreadOnly: !state.unreadOnly });
-  }, [state.unreadOnly, setState]);
+  const setFilter = useCallback((filter: boolean) => {
+    setState({ filter });
+  }, [setState]);
 
-  const setSortBy = useCallback((sortBy: SortBy) => {
-    setState({ sortBy });
+  const setSort = useCallback((sort: SortBy) => {
+    setState({ sort });
   }, [setState]);
 
   const selectFeed = useCallback((feedId: string | undefined) => {
@@ -89,23 +82,18 @@ export function useUrlState() {
   }, [setState]);
 
   return {
-    // Current state
     ...state,
-    // Setters for individual params
     setView,
-    toggleUnread,
-    setSortBy,
+    setFilter,
+    setSort,
     selectFeed,
     selectCategory,
     selectArticle,
     clearSelection,
-    // Full state setter
     setState,
-    // Helper to check if viewing a specific context
     isViewingFeed: !!state.feedId,
     isViewingCategory: !!state.category,
     isViewingArticle: !!state.articleId,
-    // Current search string (for debugging)
     searchString: location.search,
   };
 }
@@ -131,8 +119,8 @@ export function useUrlStateOnMount(): UrlState {
 
   return {
     view: (params.get('view') as ViewMode) || DEFAULT_STATE.view,
-    unreadOnly: params.get('unread') === 'true',
-    sortBy: (params.get('sort') as SortBy) || DEFAULT_STATE.sortBy,
+    filter: params.get('filter') === 'true',
+    sort: (params.get('sort') as SortBy) || DEFAULT_STATE.sort,
     feedId: params.get('feedId') || undefined,
     category: params.get('category') || undefined,
     articleId: params.get('articleId') || undefined,
