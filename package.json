@@ -11,7 +11,12 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "db:generate": "pnpm --filter @feed-mind/db generate",
     "db:migrate": "pnpm --filter @feed-mind/db migrate",
-    "db:studio": "pnpm --filter @feed-mind/db studio"
+    "db:studio": "pnpm --filter @feed-mind/db studio",
+    "dev:web": "pnpm --filter @feed-mind/web dev",
+    "dev:api": "pnpm --filter @feed-mind/api dev",
+    "dev:desktop": "pnpm --filter @feed-mind/desktop dev",
+    "dev:mobile": "pnpm --filter @feed-mind/mobile dev",
+    "dev:extension": "pnpm --filter @feed-mind/extension dev"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
