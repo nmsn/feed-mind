@@ -93,15 +93,29 @@ Reader.displayName = 'Reader';
 
 /**
  * ThreeColumnLayout with preset widths for classic RSS reader experience
+ * Uses Flexbox with CSS Grid-like fixed widths for predictable column sizing
  */
 const ClassicThreeColumnLayout = React.forwardRef<HTMLDivElement, ThreeColumnLayoutProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, children, ...props }, ref) => {
     return (
       <ThreeColumnLayout
         ref={ref}
-        className={cn('grid grid-cols-[280px_320px_1fr]', className)}
+        className={cn('flex-row', className)}
         {...props}
-      />
+      >
+        {React.Children.map(children, (child, index) => {
+          if (!React.isValidElement(child)) return child;
+          const isFirst = index === 0;
+          const isSecond = index === 1;
+          return React.cloneElement(child as React.ReactElement<{ className?: string }>, {
+            className: cn(
+              isFirst && 'w-[280px] flex-shrink-0',
+              isSecond && 'w-[320px] flex-shrink-0',
+              (child.props as { className?: string }).className
+            ),
+          });
+        })}
+      </ThreeColumnLayout>
     );
   }
 );
