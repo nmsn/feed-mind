@@ -77,7 +77,6 @@
 | Feed `url` | `rss_sources.url` | — |
 | Feed `unreadCount` | — | **删除**（本期不做） |
 | Article `id` | `articles.id` | — |
-| Article `feedId` | `articles.source_id` | rename |
 | Article `title` | `articles.title` | — |
 | Article `author` | `articles.author` | — |
 | Article `publishedAt` (string) | `articles.published_at` (Date) | `formatRelativeTime()` |
@@ -140,7 +139,8 @@ function formatRelativeTime(date: Date | number): string {
    - 在文章列表为空时显示"刷新订阅源"按钮
    - 在阅读面板中根据当前 article 的 `source_id` 从 `feeds` 列表查找 `feedTitle`
 
-5. **不改动**：`apps/web/src/hooks/*`（hooks 已有）、`apps/web/src/routes/*`（未启用）、`apps/web/src/main.tsx`
+5. **`turbo.json`**：增加 `web#dev` 对 `api-client#build` 的依赖，确保 api-client dist 在 web 启动前已构建
+6. **不改动**：`apps/web/src/hooks/*`（hooks 已有）、`apps/web/src/routes/*`（未启用）、`apps/web/src/main.tsx`
 
 ## 错误处理
 
@@ -173,7 +173,7 @@ function formatRelativeTime(date: Date | number): string {
 
 ## 风险与回滚
 
-- **风险 1**：api-client 改动未重新构建 → web 端继续用旧 dist。**缓解**：CI / 本地明确运行 `pnpm --filter @feed-mind/api-client build`，并在 `turbo.json` 中确保 web 的 `dev` 依赖 api-client 的 `build`。
+- **风险 1**：api-client 改动未重新构建 → web 端继续用旧 dist。**缓解**：开发者本地明确运行 `pnpm --filter @feed-mind/api-client build`；`turbo.json` 中追加 `web#dev` 对 `api-client#build` 的依赖（作为本期改动的一部分，会同时修改 `turbo.json`）。
 - **风险 2**：Vite 代理配置后，`/api` 在生产构建中不存在。**缓解**：本期仅限开发期；生产部署时由反向代理或绝对 URL 处理，不在本期范围。
 - **风险 3**：`articles.content` 为 null 时 `dangerouslySetInnerHTML` 渲染空字符串。**缓解**：fallback 到 `description`，再 fallback 到空。
 - **回滚**：所有改动集中在 `app.tsx`、`vite.config.ts`、`client.ts` 三个文件，git revert 即可。
