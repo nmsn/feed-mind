@@ -16,7 +16,8 @@
     "dev:api": "pnpm --filter @feed-mind/api dev",
     "dev:desktop": "pnpm --filter @feed-mind/desktop dev",
     "dev:mobile": "pnpm --filter @feed-mind/mobile dev",
-    "dev:extension": "pnpm --filter @feed-mind/extension dev"
+    "dev:extension": "pnpm --filter @feed-mind/extension dev",
+    "docker:dev": "docker compose -f docker/docker-compose.dev.yml up"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
