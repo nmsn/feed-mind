@@ -2,7 +2,6 @@ import { createApp } from 'vinxi';
 
 export default createApp({
   server: {
-    port: 5173,
     devProxy: {
       '/api': {
         target: 'http://localhost:3000',
