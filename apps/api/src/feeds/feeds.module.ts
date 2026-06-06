@@ -8,5 +8,6 @@ import { DatabaseModule } from '../database/database.module';
   imports: [DatabaseModule],
   controllers: [FeedsController],
   providers: [FeedsService, FeedsRepository],
+  exports: [FeedsRepository],
 })
 export class FeedsModule {}

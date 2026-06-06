@@ -9,5 +9,6 @@ import { DatabaseModule } from '../database/database.module';
   imports: [DatabaseModule, RssModule],
   controllers: [ArticlesController],
   providers: [ArticlesService, ArticlesRepository],
+  exports: [ArticlesRepository],
 })
 export class ArticlesModule {}

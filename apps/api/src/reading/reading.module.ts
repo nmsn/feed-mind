@@ -9,5 +9,6 @@ import { DatabaseModule } from '../database/database.module';
   imports: [DatabaseModule, ArticlesModule],
   controllers: [ReadingController],
   providers: [ReadingService, ReadingRepository],
+  exports: [ReadingRepository],
 })
 export class ReadingModule {}
