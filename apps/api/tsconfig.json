@@ -4,6 +4,9 @@
     "baseUrl": ".",
     "rootDir": "./src",
     "outDir": "./dist",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     "paths": {
       "~/*": ["./src/*"],
       "@feed-mind/shared/*": ["../../packages/shared/src/*"],
