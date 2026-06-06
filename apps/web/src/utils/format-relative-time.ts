@@ -6,15 +6,21 @@
 export function formatRelativeTime(input: Date | number | string | null | undefined): string {
   if (input == null) return '';
 
-  const date = input instanceof Date ? input : new Date(input);
+  let ms: number;
+  if (input instanceof Date) {
+    ms = input.getTime();
+  } else {
+    const num = typeof input === 'number' ? input : Number(input);
+    if (isNaN(num)) return '';
+    // 数据库返回的可能是秒级时间戳（drizzle integer mode='timestamp' 默认是秒）
+    // 通过数值大小判断：> 1e12 视为毫秒，否则视为秒
+    ms = num < 1e12 ? num * 1000 : num;
+  }
+
+  const date = new Date(ms);
   if (isNaN(date.getTime())) return '';
 
-  // 数据库返回的可能是秒级时间戳（drizzle integer mode='timestamp' 默认是秒）
-  // 通过数值大小判断：> 1e12 视为毫秒，否则视为秒
-  const ts = date.getTime();
-  const ms = ts < 1e12 ? ts * 1000 : ts;
-  const now = Date.now();
-  const diffSec = Math.round((ms - now) / 1000);
+  const diffSec = Math.round((ms - Date.now()) / 1000);
   const absSec = Math.abs(diffSec);
 
   const rtf = new Intl.RelativeTimeFormat('zh-CN', { numeric: 'auto' });
