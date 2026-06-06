@@ -5,7 +5,13 @@ import { DatabaseService } from '../database/database.service';
 export class FeedsRepository {
   constructor(private db: DatabaseService) {}
 
-  async findByUserId(userId: string) {
+  async findByUserId(userId: string | undefined) {
+    if (!userId) {
+      // 开发模式：未鉴权时返回全部订阅源（与 web 端 MOCK_USER bypass 配套）
+      return this.db.query(
+        'SELECT * FROM rss_sources ORDER BY created_at DESC'
+      );
+    }
     return this.db.query(
       'SELECT * FROM rss_sources WHERE user_id = $1 ORDER BY created_at DESC',
       [userId]

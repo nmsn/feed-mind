@@ -8,6 +8,7 @@ import { RssModule } from './rss/rss.module';
 import { ReadingModule } from './reading/reading.module';
 import { AnnotationsModule } from './annotations/annotations.module';
 import { AiModule } from './ai/ai.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AiModule } from './ai/ai.module';
     ReadingModule,
     AnnotationsModule,
     AiModule,
+    SeedModule,
   ],
 })
 export class AppModule {}
