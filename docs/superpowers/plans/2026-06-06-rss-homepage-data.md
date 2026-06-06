@@ -51,11 +51,10 @@
 文件内容：
 
 ```ts
-import { defineConfig } from 'vinxi';
+import { createApp } from 'vinxi';
 
-export default defineConfig({
+export default createApp({
   server: {
-    port: 5173,
     devProxy: {
       '/api': {
         target: 'http://localhost:3000',
@@ -82,7 +81,8 @@ export default defineConfig({
 ```
 
 关键点：
-- `port: 5173` 显式设置，避免 Vinxi 默认 3000 与 API 端口冲突
+- **Vinxi 0.4.3 没有 `defineConfig` 导出**，使用 `createApp`（来自 `vinxi` 包）
+- **`server.port: 5173` 在 Vinxi 0.4.3 dev server 不生效**（createApp 的 `server` 配置只影响 Nitro，不影响 dev 监听端口）。dev server 端口由 `process.env.PORT` 或 `--port` 决定；本计划在 Task 3（dev 脚本改造）中通过 `PORT=5173` 注入
 - `devProxy['/api']` 是 Vinxi 通过 Nitro 注册的代理（见 `node_modules/vinxi/lib/nitro-dev.js:165-176`）
 - `rewrite` 剥掉 `/api`，让 `/api/feeds` 转发到 `http://localhost:3000/feeds`（API 实际路径）
 - `routers` 是 Vinxi 必需的路由器声明；静态 public + SPA client
