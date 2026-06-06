@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE = '/api';
 
 export class ApiClient {
   private baseUrl: string;
@@ -21,7 +21,7 @@ export class ApiClient {
       throw new Error(`API error: ${response.status}`);
     }
 
-    return response.json();
+    return response.json() as T;
   }
 
   get<T>(path: string) {
