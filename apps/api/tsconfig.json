@@ -2,6 +2,8 @@
   "extends": ["@feed-mind/tsconfig/node"],
   "compilerOptions": {
     "baseUrl": ".",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "paths": {
       "~/*": ["./src/*"],
       "@feed-mind/shared/*": ["../../packages/shared/src/*"],

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/main.ts",
+    "dev": "concurrently -k -n tsc,node -c blue,green \"tsc -w -p tsconfig.json\" \"node --watch --enable-source-maps dist/main.js\"",
     "build": "tsup",
     "typecheck": "tsc --noEmit"
   },
@@ -29,6 +29,7 @@
   "devDependencies": {
     "@feed-mind/tsconfig": "workspace:*",
     "@types/node": "^20.0.0",
+    "concurrently": "^10.0.3",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"
   }
