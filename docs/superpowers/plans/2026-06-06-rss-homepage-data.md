@@ -38,47 +38,123 @@
 
 ---
 
-## 任务 1：配置 Vite 代理 `/api` → `http://localhost:3000`
+## 任务 1：创建 Vinxi app.config.ts（devProxy + port）
+
+> **背景纠正**：原 plan 假设修改 `apps/web/vite.config.ts` 的 `server.proxy` 即可。但 Vinxi 在构造 Vite dev server 时硬编码 `configFile: false`（见 `node_modules/vinxi/lib/dev-server.js:64`），整个 `vite.config.ts` 在 `pnpm dev:web` 期间被完全忽略。Vinxi 自己的入口是 `app.config.ts`，代理应通过 Nitro 的 `devProxy` 配置。
 
 **Files:**
-- Modify: `apps/web/vite.config.ts`
+- Create: `apps/web/app.config.ts`
+- Modify: `apps/web/src/app.tsx`（不要修改——保留原样）
 
-- [ ] **Step 1.1：编辑 vite.config.ts**
+- [ ] **Step 1.1：创建 `apps/web/app.config.ts`**
 
-完整替换为：
+文件内容：
 
 ```ts
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vinxi';
 
 export default defineConfig({
   server: {
     port: 5173,
-    hmr: {
-      overlay: false,
-    },
-    proxy: {
+    devProxy: {
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        // API 没有 /api 全局前缀，剥离 web 端的 /api 前缀
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
-  css: {
-    postcss: './postcss.config.js',
-  },
+  routers: [
+    {
+      name: 'public',
+      type: 'static',
+      dir: './public',
+    },
+    {
+      name: 'client',
+      type: 'spa',
+      handler: './index.html',
+      target: 'browser',
+    },
+  ],
 });
 ```
 
-- [ ] **Step 1.2：启动 dev server 验证代理配置不报错**
+关键点：
+- `port: 5173` 显式设置，避免 Vinxi 默认 3000 与 API 端口冲突
+- `devProxy['/api']` 是 Vinxi 通过 Nitro 注册的代理（见 `node_modules/vinxi/lib/nitro-dev.js:165-176`）
+- `rewrite` 剥掉 `/api`，让 `/api/feeds` 转发到 `http://localhost:3000/feeds`（API 实际路径）
+- `routers` 是 Vinxi 必需的路由器声明；静态 public + SPA client
 
-运行：`cd apps/web && pnpm dev`（在另一个终端/后台运行；等待几秒后 Ctrl+C 退出）
-预期：终端输出 `Local: http://localhost:5173/`，**没有** 代理相关报错
+- [ ] **Step 1.2：验证代理生效（需要 API 先启动）**
+
+启动顺序：
+1. 终端 A：`pnpm docker:dev`（postgres）
+2. 终端 B：`pnpm db:migrate`
+3. 终端 C：`pnpm dev:api`（NestJS 3000 端口）
+4. 终端 D：`cd apps/web && pnpm dev`（Vinxi 应监听 5173）
+
+预期终端 D 输出：`http://localhost:5173/`
+
+验证代理：
+```bash
+curl -i http://localhost:5173/api/feeds
+```
+预期：HTTP 401 或 200（说明请求从 web 端口被代理到了 API 端口 3000）。
+- 如果收到 401：auth 中间件拒绝了 mock user 请求，**代理工作正常**
+- 如果收到 404 / `Cannot GET /api/feeds`：代理或 rewrite 失败
+- 如果 connection refused：API 未启动
 
 - [ ] **Step 1.3：commit**
 
 ```bash
-git add apps/web/vite.config.ts
-git commit -m "feat(web): 配置 Vite 代理 /api -> http://localhost:3000"
+git add apps/web/app.config.ts
+git commit -m "feat(web): 创建 Vinxi app.config.ts 配置 devProxy(/api -> :3000) 与端口 5173"
+```
+
+---
+
+## 任务 1.5：API 端启用 CORS（仅开发期）
+
+> **为什么需要**：devProxy 在服务端转发，浏览器无跨域问题。但 api-client 用 `credentials: 'include'`，且未来若切到绝对 URL 也需要 CORS。配置在 dev 期允许 `http://localhost:5173`。
+
+**Files:**
+- Modify: `apps/api/src/bootstrap.ts`
+
+- [ ] **Step 1.5.1：编辑 bootstrap.ts 启用 CORS**
+
+完整替换为：
+
+```ts
+import 'reflect-metadata';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  // 开发期 CORS：允许 web 端 localhost:5173
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  });
+  const configService = app.get(ConfigService);
+  const port = configService.get('PORT', 3000);
+  await app.listen(port);
+  console.log(`API running on port ${port}`);
+}
+
+export { bootstrap };
+```
+
+变更要点：在 `NestFactory.create` 之后、`app.listen` 之前增加 `app.enableCors({ origin: 'http://localhost:5173', credentials: true })`。
+
+- [ ] **Step 1.5.2：commit**
+
+```bash
+git add apps/api/src/bootstrap.ts
+git commit -m "feat(api): 启用开发期 CORS（允许 localhost:5173 + credentials）"
 ```
 
 ---
