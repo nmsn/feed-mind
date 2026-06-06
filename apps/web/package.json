@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vinxi dev",
+    "dev": "PORT=5173 vinxi dev",
     "build": "vinxi build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@feed-mind/api-client": "workspace:*",
     "@feed-mind/shared": "workspace:*",
     "@feed-mind/ui": "workspace:*",
     "@tanstack/react-query": "^5.0.0",

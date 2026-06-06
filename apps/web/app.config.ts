@@ -1,6 +1,7 @@
 import { createApp } from 'vinxi';
 
 export default createApp({
+  compatibilityDate: '2026-06-06',
   server: {
     devProxy: {
       '/api': {
