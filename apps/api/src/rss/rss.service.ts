@@ -12,8 +12,11 @@ export class RssService {
     if (!feed) throw new Error('Feed not found');
 
     const options: FetchFeedOptions = {};
-    if ((feed as { last_fetched_at?: Date }).last_fetched_at) {
-      options.lastModified = (feed as { last_fetched_at: Date }).last_fetched_at.toUTCString();
+    // raw pg query 返回 integer (number)，不是 Date — 需先乘 1000 转毫秒
+    const lastFetchedAt = (feed as { last_fetched_at?: number | Date | null }).last_fetched_at;
+    if (lastFetchedAt) {
+      const ms = typeof lastFetchedAt === 'number' ? lastFetchedAt * 1000 : lastFetchedAt.getTime();
+      options.lastModified = new Date(ms).toUTCString();
     }
 
     const result = await fetchFeed((feed as { url: string }).url, options);

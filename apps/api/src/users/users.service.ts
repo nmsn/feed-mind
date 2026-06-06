@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { SignUpInput } from '../auth/dto/auth.dto';
 import { createHash, randomBytes } from 'crypto';
+import { nowSec } from '../database/now-sec';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +28,7 @@ export class UsersService {
   async create(input: SignUpInput) {
     const { hash, salt } = this.hashPassword(input.password);
     const id = randomBytes(16).toString('hex');
-    const now = new Date();
+    const now = nowSec();
     await this.db.query(
       `INSERT INTO users (id, email, name, password_hash, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6)`,

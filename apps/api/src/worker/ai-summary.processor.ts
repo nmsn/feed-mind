@@ -11,12 +11,14 @@ export function registerAiProcessors(
 ) {
   const claudeClient = new ClaudeClient();
 
-  boss.work('ai.summarize', { concurrency: 2 }, async (args: { articleId: string; userId: string }) => {
-    console.log(`AI summarizing article: ${args.articleId}`);
+  // pg-boss v8: handler 收 Job 对象 (id, name, data)，不是裸 data
+  boss.work('ai.summarize', { concurrency: 2 }, async (job: { data: { articleId: string; userId: string } }) => {
+    const { articleId, userId } = job.data;
+    console.log(`AI summarizing article: ${articleId}`);
 
-    const article = await articlesRepo.findById(args.articleId);
+    const article = await articlesRepo.findById(articleId);
     if (!article) {
-      console.error(`Article not found: ${args.articleId}`);
+      console.error(`Article not found: ${articleId}`);
       return;
     }
 
@@ -24,14 +26,14 @@ export function registerAiProcessors(
       (article as { description?: string }).description || '';
 
     if (!content) {
-      console.error(`No content to summarize for article: ${args.articleId}`);
+      console.error(`No content to summarize for article: ${articleId}`);
       return;
     }
 
     try {
       const result = await claudeClient.summarize(content);
 
-      const readingItem = await readingRepo.findByUserAndArticle(args.userId, args.articleId);
+      const readingItem = await readingRepo.findByUserAndArticle(userId, articleId);
       if (readingItem) {
         await readingRepo.update(readingItem.id, { status: 'reading' });
       }
@@ -46,10 +48,10 @@ export function registerAiProcessors(
         });
       }
 
-      console.log(`AI summary complete for article: ${args.articleId}`);
+      console.log(`AI summary complete for article: ${articleId}`);
       return result;
     } catch (error) {
-      console.error(`AI summarize failed for ${args.articleId}:`, error);
+      console.error(`AI summarize failed for ${articleId}:`, error);
       throw error;
     }
   });

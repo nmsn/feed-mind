@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
+import { nowSec } from '../database/now-sec';
 
 @Injectable()
 export class AnnotationsRepository {
@@ -17,7 +18,7 @@ export class AnnotationsRepository {
   }
 
   async create(annotation: { id: string; readingItemId: string; type: string; content: string }) {
-    const now = new Date();
+    const now = nowSec();
     await this.db.query(
       `INSERT INTO ai_annotations (id, reading_item_id, type, content, created_at)
        VALUES ($1, $2, $3, $4, $5)`,

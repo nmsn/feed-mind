@@ -11,12 +11,14 @@ export function registerAiAnswerProcessor(
 ) {
   const claudeClient = new ClaudeClient();
 
-  boss.work('ai.answer', { concurrency: 2 }, async (args: { articleId: string; userId: string; question: string }) => {
-    console.log(`AI answering question for article: ${args.articleId}`);
+  // pg-boss v8: handler 收 Job 对象 (id, name, data)，不是裸 data
+  boss.work('ai.answer', { concurrency: 2 }, async (job: { data: { articleId: string; userId: string; question: string } }) => {
+    const { articleId, userId, question } = job.data;
+    console.log(`AI answering question for article: ${articleId}`);
 
-    const article = await articlesRepo.findById(args.articleId);
+    const article = await articlesRepo.findById(articleId);
     if (!article) {
-      console.error(`Article not found: ${args.articleId}`);
+      console.error(`Article not found: ${articleId}`);
       return;
     }
 
@@ -24,22 +26,22 @@ export function registerAiAnswerProcessor(
       (article as { description?: string }).description || '';
 
     try {
-      const result = await claudeClient.answer(content, args.question);
+      const result = await claudeClient.answer(content, question);
 
-      const readingItem = await readingRepo.findByUserAndArticle(args.userId, args.articleId);
+      const readingItem = await readingRepo.findByUserAndArticle(userId, articleId);
       if (readingItem) {
         const id = crypto.randomUUID();
         await annotationsRepo.create({
           id,
           readingItemId: readingItem.id,
           type: 'answer',
-          content: `Q: ${args.question}\n\nA: ${result.answer}`,
+          content: `Q: ${question}\n\nA: ${result.answer}`,
         });
       }
 
       return result;
     } catch (error) {
-      console.error(`AI answer failed for ${args.articleId}:`, error);
+      console.error(`AI answer failed for ${articleId}:`, error);
       throw error;
     }
   });

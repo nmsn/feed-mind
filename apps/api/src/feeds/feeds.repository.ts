@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
+import { nowSec } from '../database/now-sec';
 
 @Injectable()
 export class FeedsRepository {
@@ -31,7 +32,7 @@ export class FeedsRepository {
 
   async create(userId: string, input: { name: string; url: string; description?: string; category?: string }) {
     const id = crypto.randomUUID();
-    const now = new Date();
+    const now = nowSec();
     await this.db.query(
       `INSERT INTO rss_sources (id, user_id, name, url, description, category, is_active, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, true, $7, $8)`,
@@ -65,7 +66,7 @@ export class FeedsRepository {
     if (sets.length === 0) return this.findById(id);
 
     sets.push(`updated_at = $${paramIndex++}`);
-    params.push(new Date());
+    params.push(nowSec());
     params.push(id);
 
     await this.db.query(
@@ -80,9 +81,12 @@ export class FeedsRepository {
   }
 
   async updateLastFetched(id: string, lastFetchedAt: Date) {
+    // schema 用 integer + mode 'timestamp'，DB 存 unix 秒；Date 对象 pg 不会自动转 int
+    const lastFetchedSec = Math.floor(lastFetchedAt.getTime() / 1000);
+    const nowSec = Math.floor(Date.now() / 1000);
     await this.db.query(
       'UPDATE rss_sources SET last_fetched_at = $1, updated_at = $2 WHERE id = $3',
-      [lastFetchedAt, new Date(), id]
+      [lastFetchedSec, nowSec, id]
     );
   }
 }

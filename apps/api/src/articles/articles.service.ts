@@ -53,7 +53,7 @@ export class ArticlesService {
       const link = article.link || article.guid;
       if (!link) continue;
 
-      const existing = await this.articles.findByGuidOrLink(article.guid || link, link);
+      const existing = await this.articles.findByLink(link);
       if (existing) continue;
 
       const id = crypto.randomUUID();

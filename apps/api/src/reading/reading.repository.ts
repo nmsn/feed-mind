@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
+import { nowSec } from '../database/now-sec';
 
 @Injectable()
 export class ReadingRepository {
@@ -41,7 +42,7 @@ export class ReadingRepository {
   }
 
   async create(item: { id: string; userId: string; articleId: string; status: string }) {
-    const now = new Date();
+    const now = nowSec();
     await this.db.query(
       `INSERT INTO reading_items (id, user_id, article_id, status, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6)`,
@@ -67,7 +68,7 @@ export class ReadingRepository {
     if (sets.length === 0) return this.findById(id);
 
     sets.push(`updated_at = $${i++}`);
-    params.push(new Date());
+    params.push(nowSec());
     params.push(id);
 
     await this.db.query(`UPDATE reading_items SET ${sets.join(', ')} WHERE id = $${i}`, params);

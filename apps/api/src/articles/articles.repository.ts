@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
+import { nowSec, toUnixSeconds } from '../database/now-sec';
 import type { Cursor } from '@feed-mind/shared';
 
 @Injectable()
@@ -28,7 +29,7 @@ export class ArticlesRepository {
          WHERE (published_at < $1 OR (published_at = $1 AND id < $2))
          ORDER BY published_at DESC, id DESC
          LIMIT $3`,
-        [new Date(cursor.publishedAt), cursor.id, limit + 1]
+        [toUnixSeconds(cursor.publishedAt), cursor.id, limit + 1]
       );
     }
 
@@ -46,7 +47,7 @@ export class ArticlesRepository {
          AND (published_at < $2 OR (published_at = $2 AND id < $3))
        ORDER BY published_at DESC, id DESC
        LIMIT $4`,
-      [sourceId, new Date(cursor.publishedAt), cursor.id, limit + 1]
+      [sourceId, toUnixSeconds(cursor.publishedAt), cursor.id, limit + 1]
     );
   }
 
@@ -61,11 +62,9 @@ export class ArticlesRepository {
     return this.db.queryOne('SELECT * FROM articles WHERE id = $1', [id]);
   }
 
-  async findByGuidOrLink(guid: string, link: string) {
-    return this.db.queryOne(
-      'SELECT * FROM articles WHERE guid = $1 OR link = $2',
-      [guid, link]
-    );
+  async findByLink(link: string) {
+    // schema 没有 guid 列，用 link 去重
+    return this.db.queryOne('SELECT * FROM articles WHERE url = $1', [link]);
   }
 
   async create(article: {
@@ -79,7 +78,9 @@ export class ArticlesRepository {
     imageUrl?: string;
     publishedAt: Date;
   }) {
-    const now = new Date();
+    // schema 用 integer + mode 'timestamp'，DB 存 unix 秒；Date 对象 pg 不会自动转 int
+    const publishedSec = Math.floor(article.publishedAt.getTime() / 1000);
+    const nowSec = Math.floor(Date.now() / 1000);
     await this.db.query(
       `INSERT INTO articles (id, source_id, title, url, author, description, content, image_url, published_at, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
@@ -92,18 +93,19 @@ export class ArticlesRepository {
         article.description || null,
         article.content || null,
         article.imageUrl || null,
-        article.publishedAt,
-        now,
-        now,
+        publishedSec,
+        nowSec,
+        nowSec,
       ]
     );
     return this.findById(article.id);
   }
 
   async updateContent(id: string, content: string) {
+    const nowSec = Math.floor(Date.now() / 1000);
     await this.db.query(
       'UPDATE articles SET content = $1, updated_at = $2 WHERE id = $3',
-      [content, new Date(), id]
+      [content, nowSec, id]
     );
   }
 }

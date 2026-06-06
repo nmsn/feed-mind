@@ -14,6 +14,8 @@ export class FeedsService {
   async findOne(id: string, userId: string) {
     const feed = await this.feeds.findById(id);
     if (!feed) throw new NotFoundException('Feed not found');
+    // 开发模式：未鉴权时跳过 ownership check（与 findByUserId 的 dev bypass 配套）
+    if (userId === undefined) return feed;
     if ((feed as { user_id: string }).user_id !== userId) throw new ForbiddenException();
     return feed;
   }
