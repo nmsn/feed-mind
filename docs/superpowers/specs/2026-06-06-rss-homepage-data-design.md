@@ -49,10 +49,15 @@
                                        │  /feeds, /articles    │
                                        └───────────┬──────────┘
                                                    │
-                                       ┌───────────▼──────────┐
-                                       │  Turso (SQLite)       │
+                                       ┌──────────────────────┐
+                                       │  PostgreSQL 16         │
+                                       │  docker: postgres:    │
+                                       │  16-alpine, :5432     │
+                                       │  users, sessions,     │
                                        │  rss_sources,         │
-                                       │  articles             │
+                                       │  articles,            │
+                                       │  reading_items,       │
+                                       │  ai_annotations       │
                                        └──────────────────────┘
 ```
 
