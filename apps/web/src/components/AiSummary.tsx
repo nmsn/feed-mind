@@ -55,6 +55,7 @@ export function AiSummary({ article, open, onToggle }: AiSummaryProps) {
     await new Promise((r) => setTimeout(r, 350));
     setDone(true);
     await aiTypeText(tldrRef.current, s.tldr, 26);
+    setTldr(s.tldr); // 同步 state 用于复制
     await aiTypeList(pointsRef.current, s.points, 14);
     setBusy(false);
   }
