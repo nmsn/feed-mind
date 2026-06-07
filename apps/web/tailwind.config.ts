@@ -6,7 +6,9 @@ export default {
   theme: {
     ...sharedConfig,
     extend: {
+      ...sharedConfig.theme?.extend,
       colors: {
+        ...(sharedConfig.theme?.extend?.colors as Record<string, string> | undefined),
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         muted: {
