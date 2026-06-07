@@ -11,4 +11,5 @@ export {
   ClassicThreeColumnLayout,
   CompactThreeColumnLayout,
   WideThreeColumnLayout,
+  FolioThreeColumnLayout,
 } from './three-column-layout';

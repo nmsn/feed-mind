@@ -153,6 +153,21 @@ const WideThreeColumnLayout = React.forwardRef<HTMLDivElement, ThreeColumnLayout
 );
 WideThreeColumnLayout.displayName = 'WideThreeColumnLayout';
 
+/**
+ * Folio-specific three-column layout using CSS Grid (264/392/1fr).
+ * Uses .folio-app class for responsive behavior (defined in apps/web/src/app.css).
+ */
+const FolioThreeColumnLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn('folio-app', className)} {...props}>
+        {children}
+      </div>
+    );
+  }
+);
+FolioThreeColumnLayout.displayName = 'FolioThreeColumnLayout';
+
 export {
   ThreeColumnLayout,
   Sidebar,
@@ -161,4 +176,5 @@ export {
   ClassicThreeColumnLayout,
   CompactThreeColumnLayout,
   WideThreeColumnLayout,
+  FolioThreeColumnLayout,
 };
