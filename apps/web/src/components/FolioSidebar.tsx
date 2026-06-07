@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import type { Feed, SmartView, FeedGroup } from '../hooks/useGroupedFeeds';
 
 interface FolioSidebarProps {

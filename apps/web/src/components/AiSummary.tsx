@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { aiTypeText, aiTypeList } from '../utils/ai-typewriter';
 import { getMockAiSummary } from '../data/mock-ai-summaries';
 

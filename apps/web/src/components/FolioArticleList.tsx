@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { formatRelativeTime } from '../utils/format-relative-time';
 import { groupArticlesByDay, type DayGroup } from '../utils/group-articles-by-day';
 

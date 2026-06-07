@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { formatRelativeTime } from '../utils/format-relative-time';
 import { AiSummary } from './AiSummary';
 import type { ArticleItem } from './FolioArticleList';
