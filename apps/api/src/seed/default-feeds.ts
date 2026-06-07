@@ -36,14 +36,6 @@ export class DefaultFeedsSeed {
   }
 
   private async ensureDefaultFeeds() {
-    // 仅当该 mock user 还没有任何订阅源时插入默认列表
-    const existing = await this.db.queryOne(
-      'SELECT COUNT(*) as count FROM rss_sources WHERE user_id = $1',
-      ['1']
-    );
-    const count = Number((existing as { count?: string | number })?.count ?? 0);
-    if (count > 0) return;
-
     const defaults: Array<{
       name: string;
       url: string;
@@ -136,7 +128,16 @@ export class DefaultFeedsSeed {
     ];
 
     const now = Math.floor(Date.now() / 1000);
+    let inserted = 0;
+    let skipped = 0;
     for (const feed of defaults) {
+      // upsert by url —— 同 user 已有该 url 则跳过，避免重复
+      const existing = await this.db.queryOne(
+        'SELECT id FROM rss_sources WHERE user_id = $1 AND url = $2',
+        ['1', feed.url]
+      );
+      if (existing) { skipped++; continue; }
+
       const id = crypto.randomUUID();
       await this.db.query(
         `INSERT INTO rss_sources
@@ -144,7 +145,12 @@ export class DefaultFeedsSeed {
          VALUES ($1, $2, $3, $4, $5, $6, 'true', $7, $8)`,
         [id, '1', feed.name, feed.url, feed.description, feed.category, now, now]
       );
+      inserted++;
     }
-    this.logger.log(`Seeded ${defaults.length} default feeds for mock user`);
+    if (inserted > 0) {
+      this.logger.log(`Default feeds: ${inserted} inserted, ${skipped} already present`);
+    } else {
+      this.logger.log(`Default feeds: all ${defaults.length} already present (no-op)`);
+    }
   }
 }
