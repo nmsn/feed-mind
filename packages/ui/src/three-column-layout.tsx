@@ -156,11 +156,16 @@ WideThreeColumnLayout.displayName = 'WideThreeColumnLayout';
 /**
  * Folio-specific three-column layout using CSS Grid (264/392/1fr).
  * Uses .folio-app class for responsive behavior (defined in apps/web/src/app.css).
+ *
+ * NOTE: 故意不用 cn() 包装 className —— tailwind-merge 会移除不在 Tailwind
+ * utility 白名单中的 CSS class（如 .folio-app），导致 grid 布局失效。
+ * 直接拼接 className 保留所有自定义类。
  */
 const FolioThreeColumnLayout = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, children, ...props }, ref) => {
+    const merged = ['folio-app', className].filter(Boolean).join(' ');
     return (
-      <div ref={ref} className={cn('folio-app', className)} {...props}>
+      <div ref={ref} className={merged} {...props}>
         {children}
       </div>
     );
